@@ -1,10 +1,10 @@
 import axios from "axios";
 import { getToken } from "./auth";
 
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL ||
-  import.meta.env.VITE_API_BASE ||
-  "https://api.corpus.swecha.org/api/v1";
+// HARDCODED for local testing
+const API_BASE = "http://localhost:8000/api/v1";
+
+console.log("[api.js] API_BASE:", API_BASE);
 
 const api = axios.create({ baseURL: API_BASE, timeout: 30000 });
 
@@ -24,10 +24,12 @@ export const apiError = (err) => {
 
 // ---------- AUTH (OTP) ----------
 // OpenAPI expects { phone } everywhere
-export const sendLoginOtp   = (phone) => api.post("/auth/login/send-otp",   { phone }).then(ok);
-export const resendLoginOtp = (phone) => api.post("/auth/login/resend-otp", { phone }).then(ok);
-export const verifyLoginOtp = (phone, otp_code) =>
-  api.post("/auth/login/verify-otp", { phone, otp_code }).then(ok);
+export const sendLoginOtp   = (phone, lang = "en") => 
+  api.post(`/auth/login/send-otp?lang=${lang}`, { phone }).then(ok);
+export const resendLoginOtp = (phone, lang = "en") => 
+  api.post(`/auth/login/resend-otp?lang=${lang}`, { phone }).then(ok);
+export const verifyLoginOtp = (phone, otp_code, lang = "en") =>
+  api.post(`/auth/login/verify-otp?lang=${lang}`, { phone, otp_code }).then(ok);
 
 // Signup OTP
 export const signupSendOtp   = (phone) => api.post("/auth/signup/send-otp",   { phone }).then(ok);
