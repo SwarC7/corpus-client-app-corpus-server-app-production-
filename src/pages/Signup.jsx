@@ -18,6 +18,9 @@ export default function Signup() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const nav = useNavigate();
+  
+  // Language state
+  const [currentLang, setCurrentLang] = useState("en");
 
   const requestOtp = async () => {
     setBusy(true);
@@ -63,100 +66,86 @@ export default function Signup() {
     phone && otp && name && password && confirmPassword &&
     gender && dob && place && consent && !busy;
 
-  if (!translationsLoaded) {
-    return (
-      <div className="container">
-        <div style={{ textAlign: "center", padding: "2rem" }}>
-          <p>Loading translations...</p>
-        </div>
-      </div>
-    );
-  }
-
   const genderOptions = [
-    { value: "male", label: t("ui.signup.gender_options.male") },
-    { value: "female", label: t("ui.signup.gender_options.female") },
-    { value: "other", label: t("ui.signup.gender_options.other") }
+    { value: "male", label: "Male" },
+    { value: "female", label: "Female" },
+    { value: "other", label: "Other" }
   ];
 
   return (
     <div className="container">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-        <h1 className="section-title">{t("ui.signup.title")}</h1>
-        <div className="field" style={{ margin: 0, minWidth: "150px" }}>
-          <label className="label" style={{ marginBottom: "0.25rem" }}>{t("ui.login.select_language")}</label>
-          <select
-            className="select"
-            value={currentLang}
-            onChange={(e) => changeLanguage(e.target.value)}
-            style={{ padding: "0.5rem" }}
-          >
-            <option value="en">{t("ui.common.english")}</option>
-            <option value="hi">{t("ui.common.hindi")}</option>
-          </select>
-        </div>
+      <div style={{ marginBottom: "1rem" }}>
+        <h1 className="section-title">Sign Up</h1>
       </div>
 
       <div className="card stack">
         <div className="field">
-          <label className="label">{t("ui.signup.full_name")}</label>
+          <label className="label">Full Name *</label>
           <input 
             className="input" 
             value={name} 
             onChange={e => setName(e.target.value)} 
-            placeholder={t("ui.signup.full_name")}
+            placeholder="Enter your full name"
+            required
           />
         </div>
         
         <div className="field">
-          <label className="label">{t("ui.signup.email_optional")}</label>
+          <label className="label">Email (optional)</label>
           <input 
             className="input" 
+            type="email"
             value={email} 
             onChange={e => setEmail(e.target.value)} 
-            placeholder={t("ui.signup.email_optional")}
+            placeholder="your.email@example.com"
           />
         </div>
         
         <div className="field">
-          <label className="label">{t("ui.signup.phone_number")}</label>
+          <label className="label">Phone Number *</label>
           <input 
             className="input" 
+            type="tel"
             placeholder="+91917..." 
             value={phone} 
-            onChange={e => setPhone(e.target.value)} 
+            onChange={e => setPhone(e.target.value.replace(/\D/g, '').substring(0, 10))}
+            required
           />
         </div>
         
         <div className="field">
-          <label className="label">{t("ui.signup.password")}</label>
+          <label className="label">Password *</label>
           <input 
             className="input" 
             type="password" 
             value={password} 
             onChange={e => setPassword(e.target.value)} 
-            placeholder={t("ui.signup.password")}
+            placeholder="Create a password"
+            required
+            minLength={6}
           />
         </div>
         
         <div className="field">
-          <label className="label">{t("ui.signup.confirm_password")}</label>
+          <label className="label">Confirm Password *</label>
           <input 
             className="input" 
             type="password" 
             value={confirmPassword} 
             onChange={e => setConfirmPassword(e.target.value)} 
-            placeholder={t("ui.signup.confirm_password")}
+            placeholder="Confirm your password"
+            required
           />
         </div>
         
         <div className="row">
           <div className="field" style={{minWidth: 180}}>
-            <label className="label">{t("ui.signup.gender")}</label>
+            <label className="label">Gender *</label>
             <select 
               className="select" 
               value={gender} 
               onChange={e => setGender(e.target.value)}
+              required
             >
               {genderOptions.map(option => (
                 <option key={option.value} value={option.value}>
@@ -167,22 +156,25 @@ export default function Signup() {
           </div>
           
           <div className="field" style={{minWidth: 200}}>
-            <label className="label">{t("ui.signup.date_of_birth")}</label>
+            <label className="label">Date of Birth *</label>
             <input 
               className="input" 
               type="date" 
               value={dob} 
-              onChange={e => setDob(e.target.value)} 
+              onChange={e => setDob(e.target.value)}
+              max={new Date().toISOString().split('T')[0]}
+              required
             />
           </div>
           
           <div className="field" style={{minWidth: 220, flex: 1}}>
-            <label className="label">{t("ui.signup.place")}</label>
+            <label className="label">Place *</label>
             <input 
               className="input" 
               value={place} 
               onChange={e => setPlace(e.target.value)} 
-              placeholder={t("ui.signup.place")}
+              placeholder="Enter your city/town"
+              required
             />
           </div>
         </div>
@@ -193,41 +185,44 @@ export default function Signup() {
             onClick={requestOtp} 
             disabled={!phone || busy}
           >
-            {t("ui.signup.request_otp")}
+            Request OTP
           </button>
           
           {sent && (
             <button 
               className="btn" 
-              onClick={() => {
-                signupResendOtp(phone.trim(), currentLang);
-                setMsg(t("auth.signup.otp_resent"));
-              }} 
+              onClick={() => signupResendOtp(phone.trim())} 
               disabled={busy}
             >
-              {t("ui.signup.resend_otp")}
+              Resend OTP
             </button>
           )}
         </div>
         
-        <div className="field">
-          <label className="label">{t("ui.signup.enter_otp")}</label>
-          <input 
-            className="input" 
-            value={otp} 
-            onChange={e => setOtp(e.target.value)} 
-            placeholder={t("ui.signup.enter_otp")}
-          />
-        </div>
+        {sent && (
+          <div className="field">
+            <label className="label">Enter OTP</label>
+            <input 
+              className="input" 
+              placeholder="Enter 6-digit OTP"
+              value={otp} 
+              onChange={e => setOtp(e.target.value.replace(/\D/g, '').substring(0, 6))}
+              required
+            />
+          </div>
+        )}
         
-        <label className="row" style={{cursor: 'pointer'}}>
-          <input 
-            type="checkbox" 
-            checked={consent} 
-            onChange={e => setConsent(e.target.checked)} 
-          />
-          <span className="muted">{t("ui.signup.consent_text")}</span>
-        </label>
+        <div className="field" style={{ marginTop: "1rem" }}>
+          <label className="row" style={{ alignItems: "center", gap: "0.5rem" }}>
+            <input 
+              type="checkbox" 
+              checked={consent}
+              onChange={e => setConsent(e.target.checked)}
+              required
+            />
+            <span>I agree to the terms and conditions</span>
+          </label>
+        </div>
         
         <div className="row">
           <button 
@@ -235,17 +230,14 @@ export default function Signup() {
             onClick={verify} 
             disabled={!canSubmit}
           >
-            {t("ui.signup.verify_create_account")}
+            Create Account
           </button>
           
-          {msg && <span className="chip">{String(msg)}</span>}
+          {msg && <span className="chip">{msg}</span>}
         </div>
         
         <div className="muted">
-          {t("ui.signup.already_have_account")}{" "}
-          <Link to={`/login${currentLang !== "en" ? `?lang=${currentLang}` : ""}`}>
-            {t("ui.signup.login_here")}
-          </Link>
+          Already have an account? <Link to="/login">Login here</Link>
         </div>
       </div>
     </div>
