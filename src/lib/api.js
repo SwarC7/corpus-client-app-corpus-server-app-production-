@@ -1,8 +1,8 @@
 import axios from "axios";
 import { getToken } from "./auth";
 
-// HARDCODED for local testing
-const API_BASE = "http://localhost:8000/api/v1";
+// Production API endpoint
+const API_BASE = "https://api.corpus.swecha.org/api/v1";
 
 console.log("[api.js] API_BASE:", API_BASE);
 
